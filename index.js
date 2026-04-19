@@ -3,20 +3,14 @@ const {
     ButtonStyle, ChannelType, PermissionsBitField, EmbedBuilder
 } = require('discord.js');
 const util = require('minecraft-server-util');
-const express = require('express'); // Добавили экспресс
+const express = require('express');
 require('dotenv').config();
 
+// Настройка веб-сервера для Render (Anti-sleep)
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Это создаст страницу, на которую будет заходить пинг-сервис
-app.get('/', (req, res) => {
-  res.send('QYRAN PROJECT Bot is Alive!');
-});
-
-app.listen(port, () => {
-  console.log(`Web-сервер запущен на порту ${port}`);
-});
+app.get('/', (req, res) => res.send('QYRAN PROJECT Bot is Alive!'));
+app.listen(port, () => console.log(`Web-сервер запущен на порту ${port}`));
 
 const client = new Client({
   intents: [
@@ -37,6 +31,7 @@ let statusMessage = null;
 client.once('ready', () => {
   console.log(`✅ QYRAN PROJECT успешно запущен!`);
 
+  // Авто-обновление онлайна каждые 30 секунд
   setInterval(async () => {
     if (statusMessage) {
         try {
@@ -49,15 +44,16 @@ client.once('ready', () => {
                 );
             await statusMessage.edit({ embeds: [updatedEmbed] });
         } catch (e) {
-            console.log('Ошибка обновления онлайна.');
+            console.log('Ошибка обновления мониторинга (сервер недоступен)');
         }
     }
-  }, 300000);
+  }, 30000);
 });
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
+  // 1. КОМАНДА: ПРАВИЛА (ПОЛНЫЙ СПИСОК)
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -67,26 +63,27 @@ client.on('messageCreate', async (message) => {
             `**1.1.** Біздің серверде ойнай отырып, сіз барлық ережелермен келісесіз және олармен танысуға міндеттісіз.\n` +
             `**1.2.** Ережелерді білмеу жауапкершіліктен босатпайды.\n` +
             `**1.3.** Ережелер болашақта өзгертілуі немесе толықтырылуы мүмкін.\n` +
-            `**1.4.** Әкімшілік әрбір бұзушылыққа байланысты жазаны өзі анықтайды.\n` +
+            `**1.4.** Әкімшілік әрбір бұзушылыққа байланысты жазаны өзі анықтайды. Сіз ескерту, уақытша бан немесе мәңгілік бан ала аласыз.\n` +
             `**1.5.** Сервер қызметтеріне жұмсалған қаражат ешқандай жағдайда қайтарылмайды.\n` +
-            `**1.6.** Әкімшілікті алдау (жалған дәлелдер ұсыну) тыйым салынады.\n` +
+            `**1.6.** Әкімшілікті алдау (жалған дәлелдер ұсыну немесе жаңылыстыру) тыйым салынады.\n` +
             `**1.7.** Ережелер бойынша түсіндірме алу үшін техникалық қолдауға жүгінуіңізге болады.\n\n` +
             `🎮 **2. Ойын ережелері**\n` +
-            `**2.1.** Барлық ойыншыларды құрметтеңіз.\n` +
+            `**2.1.** Барлық ойыншыларды құрметтеңіз (жасына, ұлтына қарамастан).\n` +
             `**2.2.** Балағат сөздер, қорлау және токсик әрекеттерге тыйым салынады.\n` +
             `**2.3.** Әкімшіліктің рұқсатынсыз жарнама жасауға болмайды.\n` +
-            `**2.4.** Ник (атыңыз) әдепті болуы керек.\n\n` +
+            `**2.4.** Ник (атыңыз) әдепті болуы керек (балағатсыз).\n\n` +
             `⚡ **3. Ойын процесі және читтер**\n` +
-            `**3.1.** Үшінші тарап бағдарламаларын, модтарды немесе читтерді қолдануға тыйым салынады.\n` +
-            `**3.2.** Серверге зиян келтіру (дюп, баг, лаг-машина) — бан.\n` +
-            `**3.3.** Қорлайтын титул немесе префикс қою — бан.\n` +
-            `**3.4.** /mute және /unmute командаларын дұрыс пайдаланбау — бан.\n\n` +
+            `**3.1.** Үшінші тарап бағдарламаларын, модтарды, скрипттерді немесе читтерді қолдануға тыйым салынады.\n` +
+            `**3.2.** Серверге зиян келтіру (дюп, баг, лаг-машина және т.б.) — банмен жазаланады. Егер ақау байқасаңыз, міндетті түрде техникалық қолдауға хабарласыңыз — сіз сыйақы аласыз.\n` +
+            `**3.3.** Қорлайтын, саяси немесе өзін әкімшілік ретінде көрсететін титул (/titul) немесе префикс (/prefix) қою — бан.\n` +
+            `**3.4.** /mute және /unmute командаларын дұрыс пайдаланбау — бан.\n` +
+            `**3.5.** Ережелерді қайта-қайта бұзу — сервердің қара тізіміне енгізіліп, мәңгілік бан және ресурстарды толық жоюмен аяқталуы мүмкін (шағымдану мүмкін емес).\n\n` +
             `💬 **4. Чат және қарым-қатынас**\n` +
-            `**4.1.** Шектен тыс балағат сөздер (20 мин мут).\n` +
-            `**4.2.** Ата-анаға қатысты қорлау қатаң жазаланады (1 күн бан).\n` +
-            `**4.3.** Саясат, дін және жанжал тудыратын тақырыптарға тыйым салынады.\n` +
-            `**4.4.** Спам, флуд және CAPS қолдануға болмайды.\n\n` +
-            `🏗️ **5. Құрылыс**\n` +
+            `**4.1.** Шектен тыс балағат сөздерге тыйым салынады. (20 мин мут)\n` +
+            `**4.2.** Ата-анаға қатысты қорлау қатаң жазаланады. (1 күн бан)\n` +
+            `**4.3.** Саясат, дін және жанжал тудыратын тақырыптарға тыйым салынады. (1 күн бан)\n` +
+            `**4.4.** Спам, флуд және CAPS қолдануға болмайды. (10 мин мут)\n\n` +
+            `🏗️ **5. Құрылыс (постройка)**\n` +
             `**5.1.** 18+ немесе қорлайтын құрылыстарға тыйым салынады.\n` +
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
@@ -95,6 +92,7 @@ client.on('messageCreate', async (message) => {
     await message.channel.send({ embeds: [rulesEmbed] });
   }
 
+  // 2. КОМАНДА: ИНФО-ЦЕНТР С ТЕЛЕГРАМОМ
   if (message.content === '!setup-all') {
     const infoEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -112,6 +110,7 @@ client.on('messageCreate', async (message) => {
             `👉 [QYRAN Telegram-ға өту](${TELEGRAM_URL})`
         )
         .setImage(SERVER_BANNER);
+
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('open_ticket').setLabel('Открыть тикет').setEmoji('📩').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setLabel('Telegram').setURL(TELEGRAM_URL).setStyle(ButtonStyle.Link)
@@ -119,22 +118,31 @@ client.on('messageCreate', async (message) => {
     await message.channel.send({ embeds: [infoEmbed], components: [row] });
   }
 
+  // 3. КОМАНДА: МОНИТОРИНГ (С МГНОВЕННЫМ ОБНОВЛЕНИЕМ)
   if (message.content === '!setup-server') {
+    let onlineDisplay = 'Загрузка...';
+    try {
+        const data = await util.status(SERVER_IP, 25565);
+        onlineDisplay = `${data.players.online}/${data.players.max}`;
+    } catch (e) { onlineDisplay = '0/100'; }
+
     const serverEmbed = new EmbedBuilder()
         .setColor('#2ecc71')
         .setTitle('QYRAN MINECRAFT #1')
         .addFields(
             { name: '🌐 Статус', value: '`Online`', inline: true },
             { name: '🗺️ Карта', value: '`Grief`', inline: true },
-            { name: '👥 Игроки', value: `\`0/100\``, inline: true }
+            { name: '👥 Игроки', value: `\`${onlineDisplay}\``, inline: true }
         )
         .setDescription(`**Java IP:** \`grief.play.ski\`\n**Bedrock IP:** \`213.152.43.25:25777\``)
         .setImage(SERVER_BANNER);
+
     statusMessage = await message.channel.send({ embeds: [serverEmbed] });
     await message.delete();
   }
 });
 
+// ЛОГИКА ТИКЕТОВ
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
     if (interaction.customId === 'open_ticket') {
