@@ -35,7 +35,7 @@ client.once('ready', () => {
   setInterval(async () => {
     if (statusMessage) {
         try {
-            const data = await util.status(SERVER_IP, 25565);
+            const data = await util.status(SERVER_IP, 25565, { queryPort: 25934 });
             const updatedEmbed = EmbedBuilder.from(statusMessage.embeds[0])
                 .setFields(
                     { name: '🌐 Статус', value: '`Online`', inline: true },
@@ -122,7 +122,7 @@ client.on('messageCreate', async (message) => {
   if (message.content === '!setup-server') {
     let onlineDisplay = 'Загрузка...';
     try {
-        const data = await util.status(SERVER_IP, 25565, { enableSRV: true });
+        const data = await util.status(SERVER_IP, 25565, { queryPort: 25934, enableSRV: true });
         onlineDisplay = `${data.players.online}/${data.players.max}`;
     } catch (e) { onlineDisplay = '0/100'; }
 
