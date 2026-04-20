@@ -24,12 +24,13 @@ const client = new Client({
 // --- БОТ ПАРАМЕТРЛЕРІ ---
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
 const SERVER_IP = 'grief.play.ski';
+const TELEGRAM_URL = 'https://t.me/qyranproject'; // Telegram сілтемеңіз
 
 // Баннерлер
 const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
-const RULES_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
 const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
 const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&=&format=webp&quality=lossless&width=2572&height=1092';
+const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050'; // Скриншоттағы бүркіт суреті
 
 let statusMessage = null;
 
@@ -54,7 +55,35 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // 1. ЕРЕЖЕЛЕР (ТОЛЫҚ)
+  // 1. ИНФОРМАЦИОННЫЙ ЦЕНТР (СКРИНШОТТАҒЫДАЙ)
+  if (message.content === '!setup-info') {
+    const infoEmbed = new EmbedBuilder()
+        .setColor('#3498db')
+        .setTitle('::: ::: ::: Информационный центр')
+        .setDescription(
+            `📩 **• Поддержка:**\n` +
+            `Төмендегі батырманы басып тикет ашыңыз.\n\n` +
+            `ℹ️ **• Навигация:**\n` +
+            `• 📘 <#1482733569422921859> — ақпараттар\n` +
+            `• 💸 <#1482752097723093232> — магазин\n` +
+            `• ⚡ <#1482752143449653298> — медиа\n` +
+            `• 📕 <#1495402176070291496> — ережелер\n` +
+            `• 📍 <#1495441498202837154> — серверы\n\n` +
+            `📱 **• Біздің Telegram:**\n` +
+            `👉 [QYRAN Telegram-ға өту](${TELEGRAM_URL})`
+        )
+        .setImage(INFO_CENTER_BANNER);
+
+    const infoRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('open_ticket').setLabel('Открыть тикет').setEmoji('📩').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setLabel('Telegram').setEmoji('✈️').setURL(TELEGRAM_URL).setStyle(ButtonStyle.Link)
+    );
+
+    await message.channel.send({ embeds: [infoEmbed], components: [infoRow] });
+    await message.delete();
+  }
+
+  // 2. ЕРЕЖЕЛЕР (ТОЛЫҚ)
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -89,12 +118,11 @@ client.on('messageCreate', async (message) => {
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
         )
-        .setImage(RULES_BANNER)
         .setFooter({ text: 'QYRAN PROJECT • Тәртіпті сақтағаныңыз үшін рахмет!' });
     await message.channel.send({ embeds: [rulesEmbed] });
   }
 
-  // 2. ДҮКЕН ЖӘНЕ МЕДИА (ТОЛЫҚ СИПАТТАМА)
+  // 3. ДҮКЕН ЖӘНЕ МЕДИА
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -136,7 +164,7 @@ client.on('messageCreate', async (message) => {
     await message.channel.send({ embeds: [mediaEmbed], components: [mediaRow] });
   }
 
-  // 3. МОНИТОРИНГ
+  // 4. МОНИТОРИНГ
   if (message.content === '!setup-server') {
     const serverEmbed = new EmbedBuilder()
         .setColor('#2ecc71')
@@ -153,8 +181,14 @@ client.on('messageCreate', async (message) => {
   }
 });
 
+// ИНТЕРАКЦИЯЛАР (ӨТІНІШТЕР ЖӘНЕ ТИКЕТ)
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
+        // Тикет ашу логикасы (мысалы)
+        if (interaction.customId === 'open_ticket') {
+            return interaction.reply({ content: '❌ Тикет жүйесі бапталмаған. (Канал ID қажет)', ephemeral: true });
+        }
+
         const isShop = interaction.customId === 'buy_shop';
         const modal = new ModalBuilder()
             .setCustomId(isShop ? 'shop_modal' : 'media_modal')
