@@ -23,13 +23,13 @@ const client = new Client({
 
 // --- БОТ ПАРАМЕТРЛЕРІ ---
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
-const TICKET_CHANNEL_ID = '1482733463898427443'; 
+const TICKET_CATEGORY_ID = '1482733463898427443'; 
 const SERVER_IP = 'grief.play.ski';
 const TELEGRAM_URL = 'https://t.me/qyranproject';
 
-// --- БАННЕРЛЕР (СЕН БЕРГЕН СІЛТЕМЕЛЕР) ---
+// --- СЕН БЕРГЕН БАННЕРЛЕРДІҢ СЫЛТЕМЕЛЕРІ (ӨЗГЕРІССІЗ) ---
 const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
-const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
+const RULES_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
 const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
 const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&=&format=webp&quality=lossless&width=2572&height=1092';
 
@@ -63,7 +63,7 @@ client.on('messageCreate', async (message) => {
         .setTitle('::: ::: ::: Информационный центр')
         .setDescription(
             `📩 **• Поддержка:**\n` +
-            `Төмендегі батырманы басып тикет ашыңыз.\n\n` +
+            `Төмендегі батырманы басып тикет ашыңыз. Біздің әкімшілік сізге міндетті түрде көмектеседі.\n\n` +
             `ℹ️ **• Навигация:**\n` +
             `• 📘 <#1482733569422921859> — ақпараттар\n` +
             `• 💸 <#1482752097723093232> — магазин\n` +
@@ -73,7 +73,7 @@ client.on('messageCreate', async (message) => {
             `📱 **• Біздің Telegram:**\n` +
             `👉 [QYRAN Telegram-ға өту](${TELEGRAM_URL})`
         )
-        .setImage(INFO_CENTER_BANNER);
+        .setImage(RULES_BANNER); // Инфо центр үшін бүркіт баннері
 
     const infoRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('open_ticket').setLabel('Открыть тикет').setEmoji('📩').setStyle(ButtonStyle.Primary),
@@ -84,7 +84,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 2. ЕРЕЖЕЛЕР (ТОЛЫҚ МӘТІН ЖӘНЕ INFO_CENTER_BANNER ҚОЛДАНЫЛДЫ)
+  // 2. ЕРЕЖЕЛЕР (ТОЛЫҚ)
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -119,7 +119,7 @@ client.on('messageCreate', async (message) => {
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
         )
-        .setImage(INFO_CENTER_BANNER)
+        .setImage(RULES_BANNER)
         .setFooter({ text: 'QYRAN PROJECT • Тәртіпті сақтағаныңыз үшін рахмет!' });
     await message.channel.send({ embeds: [rulesEmbed] });
     await message.delete();
@@ -130,7 +130,7 @@ client.on('messageCreate', async (message) => {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
         .setTitle('🛒 QYRAN Дүкен')
-        .setDescription(`Сатып алу үшін төмендегі батырманы басыңыз.`)
+        .setDescription(`Minecraft серверіне арналған донат жүйесі: привилегиялар, арнайы киттер және қосымша мүмкіндіктер.`)
         .setImage(SHOP_BANNER);
 
     const shopRow = new ActionRowBuilder().addComponents(
@@ -140,7 +140,7 @@ client.on('messageCreate', async (message) => {
     const mediaEmbed = new EmbedBuilder()
         .setColor('#3498db')
         .setTitle('🎬 Медиа серіктестік')
-        .setDescription(`Өтініш беру үшін төмендегі батырманы басыңыз.`)
+        .setDescription(`Біз сіздермен медиа ойыншы (TikTok / YouTube / Minecraft / CS) ретінде ынтымақтастыққа дайынбыз.`)
         .setImage(MEDIA_BANNER);
 
     const mediaRow = new ActionRowBuilder().addComponents(
@@ -169,29 +169,58 @@ client.on('messageCreate', async (message) => {
   }
 });
 
+// --- ИНТЕРАКЦИЯЛАР (ТИКЕТ ЖӘНЕ МОДАЛДАР) ---
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
+        
+        // ТИКЕТ АШУ (КАТЕГОРИЯ ІШІНДЕ)
         if (interaction.customId === 'open_ticket') {
-            return interaction.reply({ 
-                content: `📩 Көмек алу үшін осы каналға жазыңыз: <#${TICKET_CHANNEL_ID}>`, 
-                ephemeral: true 
+            const ticketChannel = await interaction.guild.channels.create({
+                name: `ticket-${interaction.user.username}`,
+                type: ChannelType.GuildText,
+                parent: TICKET_CATEGORY_ID,
+                permissionOverwrites: [
+                    { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                    { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
+                ],
             });
+
+            const welcome = new EmbedBuilder()
+                .setColor('#3498db')
+                .setTitle('📩 Поддержка')
+                .setDescription(`Сәлем ${interaction.user}! Мәселеңізді жазыңыз. Жабу үшін 🔒 басыңыз.`)
+                .setTimestamp();
+
+            const closeBtn = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('close_ticket').setLabel('Закрыть').setStyle(ButtonStyle.Danger).setEmoji('🔒')
+            );
+
+            await ticketChannel.send({ embeds: [welcome], components: [closeBtn] });
+            return interaction.reply({ content: `✅ Тикет ашылды: ${ticketChannel}`, ephemeral: true });
         }
 
-        const isShop = interaction.customId === 'buy_shop';
-        const modal = new ModalBuilder()
-            .setCustomId(isShop ? 'shop_modal' : 'media_modal')
-            .setTitle(isShop ? 'Сатып алу' : 'Медиаға өтініш');
-        
-        const input = new TextInputBuilder()
-            .setCustomId('user_input')
-            .setLabel(isShop ? "Не сатып алғыңыз келеді?" : "Әлеуметтік желі (TikTok/YouTube)")
-            .setPlaceholder(isShop ? "Мысалы: VIP привилегиясы" : "Сілтемеңізді жазыңыз")
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
+        if (interaction.customId === 'close_ticket') {
+            await interaction.reply('Канал 5 секундта жойылады...');
+            setTimeout(() => interaction.channel.delete(), 5000);
+            return;
+        }
 
-        modal.addComponents(new ActionRowBuilder().addComponents(input));
-        await interaction.showModal(modal);
+        // SHOP & MEDIA
+        if (interaction.customId === 'buy_shop' || interaction.customId === 'apply_media') {
+            const isShop = interaction.customId === 'buy_shop';
+            const modal = new ModalBuilder()
+                .setCustomId(isShop ? 'shop_modal' : 'media_modal')
+                .setTitle(isShop ? 'Сатып алу' : 'Медиаға өтініш');
+            
+            const input = new TextInputBuilder()
+                .setCustomId('user_input')
+                .setLabel(isShop ? "Не сатып алғыңыз келеді?" : "Сілтеме (TikTok/YouTube)")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            modal.addComponents(new ActionRowBuilder().addComponents(input));
+            await interaction.showModal(modal);
+        }
     }
 
     if (interaction.type === InteractionType.ModalSubmit) {
@@ -199,15 +228,15 @@ client.on('interactionCreate', async (interaction) => {
         const isShop = interaction.customId === 'shop_modal';
         const logEmbed = new EmbedBuilder()
             .setColor(isShop ? '#f1c40f' : '#3498db')
-            .setTitle(isShop ? '💰 ЖАҢА САТЫП АЛУ ӨТІНІШІ' : '🎥 ЖАҢА МЕДИА ӨТІНІШ')
+            .setTitle(isShop ? '💰 ЖАҢА САТЫП АЛУ' : '🎥 ЖАҢА МЕДИА')
             .addFields(
                 { name: 'Пайдаланушы:', value: `${interaction.user.tag}` },
-                { name: isShop ? 'Тауар:' : 'Сілтеме:', value: val }
+                { name: 'Мәлімет:', value: val }
             ).setTimestamp();
         
         const logChannel = client.channels.cache.get(ADMIN_LOG_CHANNEL_ID);
         if (logChannel) await logChannel.send({ embeds: [logEmbed] });
-        await interaction.reply({ content: '✅ Өтінішіңіз сәтті жіберілді!', ephemeral: true });
+        await interaction.reply({ content: '✅ Сәтті жіберілді!', ephemeral: true });
     }
 });
 
