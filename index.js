@@ -23,14 +23,15 @@ const client = new Client({
 
 // --- БОТ ПАРАМЕТРЛЕРІ ---
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
+const TICKET_CHANNEL_ID = '1482733463898427443'; 
 const SERVER_IP = 'grief.play.ski';
-const TELEGRAM_URL = 'https://t.me/qyranproject'; // Telegram сілтемеңіз
+const TELEGRAM_URL = 'https://t.me/qyranproject';
 
-// Баннерлер
+// --- БАННЕРЛЕР (СЕН БЕРГЕН СІЛТЕМЕЛЕР) ---
 const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
+const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
 const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
 const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&=&format=webp&quality=lossless&width=2572&height=1092';
-const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050'; // Скриншоттағы бүркіт суреті
 
 let statusMessage = null;
 
@@ -55,7 +56,7 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // 1. ИНФОРМАЦИОННЫЙ ЦЕНТР (СКРИНШОТТАҒЫДАЙ)
+  // 1. ИНФОРМАЦИОННЫЙ ЦЕНТР
   if (message.content === '!setup-info') {
     const infoEmbed = new EmbedBuilder()
         .setColor('#3498db')
@@ -83,7 +84,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 2. ЕРЕЖЕЛЕР (ТОЛЫҚ)
+  // 2. ЕРЕЖЕЛЕР (ТОЛЫҚ МӘТІН ЖӘНЕ INFO_CENTER_BANNER ҚОЛДАНЫЛДЫ)
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -118,8 +119,10 @@ client.on('messageCreate', async (message) => {
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
         )
+        .setImage(INFO_CENTER_BANNER)
         .setFooter({ text: 'QYRAN PROJECT • Тәртіпті сақтағаныңыз үшін рахмет!' });
     await message.channel.send({ embeds: [rulesEmbed] });
+    await message.delete();
   }
 
   // 3. ДҮКЕН ЖӘНЕ МЕДИА
@@ -127,15 +130,7 @@ client.on('messageCreate', async (message) => {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
         .setTitle('🛒 QYRAN Дүкен')
-        .setDescription(
-            `**Тауарлар туралы толығырақ:**\n` +
-            `Minecraft серверіне арналған донат жүйесі: привилегиялар, арнайы киттер және қосымша мүмкіндіктер.\n\n` +
-            `**Жобаны қолдап, бірегей ойын мүмкіндіктерін алыңыз:**\n` +
-            `• Привилегиялар (VIP, MVP...)\n` +
-            `• Арнайы киттер мен ресурстар\n` +
-            `• Қосымша командалар\n\n` +
-            `Сатып алу үшін төмендегі батырманы басыңыз.`
-        )
+        .setDescription(`Сатып алу үшін төмендегі батырманы басыңыз.`)
         .setImage(SHOP_BANNER);
 
     const shopRow = new ActionRowBuilder().addComponents(
@@ -145,15 +140,7 @@ client.on('messageCreate', async (message) => {
     const mediaEmbed = new EmbedBuilder()
         .setColor('#3498db')
         .setTitle('🎬 Медиа серіктестік')
-        .setDescription(
-            `Біз сіздермен **медиа ойыншы (TikTok / YouTube / Minecraft / CS)** ретінде ынтымақтастыққа дайынбыз.\n\n` +
-            `**Біз ұсынамыз:**\n` +
-            `✅ Бірлесіп дамыту және ілгерілету\n` +
-            `🎥 Сапалы контент жасауға көмек\n` +
-            `🚀 Серверді танымал ету мүмкіндігі\n` +
-            `📢 Платформаларда жарнама жасау\n\n` +
-            `Өтініш беру үшін төмендегі батырманы басыңыз.`
-        )
+        .setDescription(`Өтініш беру үшін төмендегі батырманы басыңыз.`)
         .setImage(MEDIA_BANNER);
 
     const mediaRow = new ActionRowBuilder().addComponents(
@@ -162,6 +149,7 @@ client.on('messageCreate', async (message) => {
 
     await message.channel.send({ embeds: [shopEmbed], components: [shopRow] });
     await message.channel.send({ embeds: [mediaEmbed], components: [mediaRow] });
+    await message.delete();
   }
 
   // 4. МОНИТОРИНГ
@@ -181,12 +169,13 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// ИНТЕРАКЦИЯЛАР (ӨТІНІШТЕР ЖӘНЕ ТИКЕТ)
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
-        // Тикет ашу логикасы (мысалы)
         if (interaction.customId === 'open_ticket') {
-            return interaction.reply({ content: '❌ Тикет жүйесі бапталмаған. (Канал ID қажет)', ephemeral: true });
+            return interaction.reply({ 
+                content: `📩 Көмек алу үшін осы каналға жазыңыз: <#${TICKET_CHANNEL_ID}>`, 
+                ephemeral: true 
+            });
         }
 
         const isShop = interaction.customId === 'buy_shop';
