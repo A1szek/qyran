@@ -7,7 +7,7 @@ const util = require('minecraft-server-util');
 const express = require('express'); 
 require('dotenv').config();
 
-// --- ВЕБ-СЕРВЕР (Render үшін) ---
+// --- ВЕБ-СЕРВЕР ---
 const app = express();
 const port = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('QYRAN PROJECT Bot is Alive!'));
@@ -25,12 +25,12 @@ const client = new Client({
 const TICKET_CATEGORY_ID = '1482733463898427443'; 
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
 const SERVER_IP = 'grief.play.ski';
-const TELEGRAM_URL = 'https://t.me/+3BJyMTH6O9s1ZWRi';
 
 // Баннерлер сілтемелері
-const MAIN_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png';
-const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png'; 
-const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png';
+const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
+const RULES_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
+const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
+const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&=&format=webp&quality=lossless&width=2572&height=1092';
 
 let statusMessage = null;
 
@@ -58,7 +58,7 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // 1. ЕРЕЖЕЛЕР (ТОЛЫҚ НҰСҚА - ӨЗГЕРІССІЗ)
+  // 1. ЕРЕЖЕЛЕР (ТОЛЫҚ НҰСҚА)
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -79,10 +79,10 @@ client.on('messageCreate', async (message) => {
             `**2.4.** Ник (атыңыз) әдепті болуы керек (балағатсыз).\n\n` +
             `⚡ **3. Ойын процесі және читтер**\n` +
             `**3.1.** Үшінші тарап бағдарламаларын, модтарды, скрипттерді немесе читтерді қолдануға тыйым салынады.\n` +
-            `**3.2.** Серверге зиян келтіру (дюп, баг, лаг-машина және т.б.) — банмен жазаланады. Егер ақау байқасаңыз, міндетті түрде техникалық қолдауға хабарласыңыз — сіз сыйақы аласыз.\n` +
-            `**3.3.** Қорлайтын, саяси немесе өзін әкімшілік ретінде көрсететін титул (/titul) немесе префикс (/prefix) қою — бан.\n` +
+            `**3.2.** Серверге зиян келтіру (дюп, баг, лаг-машина және т.б.) — банмен жазаланады.\n` +
+            `**3.3.** Қорлайтын, саяси немесе өзін әкімшілік ретінде көрсететін титул немесе префикс қою — бан.\n` +
             `**3.4.** /mute және /unmute командаларын дұрыс пайдаланбау — бан.\n` +
-            `**3.5.** Ережелерді қайта-қайта бұзу — сервердің қара тізіміне енгізіліп, мәңгілік бан және ресурстарды толық жоюмен аяқталуы мүмкін (шағымдану мүмкін емес).\n\n` +
+            `**3.5.** Ережелерді қайта-қайта бұзу — сервердің қара тізіміне енгізіліп, мәңгілік банмен аяқталуы мүмкін.\n\n` +
             `💬 **4. Чат және қарым-қатынас**\n` +
             `**4.1.** Шектен тыс балағат сөздерге тыйым салынады. (20 мин мут)\n` +
             `**4.2.** Ата-анаға қатысты қорлау қатаң жазаланады. (1 күн бан)\n` +
@@ -93,7 +93,8 @@ client.on('messageCreate', async (message) => {
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
         )
-        .setFooter({ text: 'QYRAN PROJECT • Ережелерді сақтағаныңыз үшін рахмет!' });
+        .setImage(RULES_BANNER)
+        .setFooter({ text: 'QYRAN PROJECT • Тәртіпті сақтағаныңыз үшін рахмет!' });
     await message.channel.send({ embeds: [rulesEmbed] });
   }
 
@@ -102,15 +103,7 @@ client.on('messageCreate', async (message) => {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
         .setTitle('🛒 QYRAN Дүкен')
-        .setDescription(
-            `**Тауарлар туралы толығырақ:**\n` +
-            `Minecraft серверіне арналған донат жүйесі: привилегиялар, арнайы киттер және қосымша мүмкіндіктер.\n\n` +
-            `**Жобаны қолдап, бірегей ойын мүмкіндіктерін алыңыз:**\n` +
-            `• Привилегиялар (VIP, IMRT...)\n` +
-            `• Арнайы киттер мен ресурстар\n` +
-            `• Қосымша мүмкіндіктер\n\n` +
-            `Сатып алу үшін төмендегі батырманы басыңыз.`
-        )
+        .setDescription(`**Жобаны қолдап, бірегей мүмкіндіктер алыңыз:**\n• VIP, MVP привилегиялары\n• Арнайы киттер мен ресурстар`)
         .setImage(SHOP_BANNER);
 
     const shopRow = new ActionRowBuilder().addComponents(
@@ -120,15 +113,7 @@ client.on('messageCreate', async (message) => {
     const mediaEmbed = new EmbedBuilder()
         .setColor('#3498db')
         .setTitle('🎬 Медиа серіктестік')
-        .setDescription(
-            `Біз сіздермен **медиа ойыншы (TikTok / YouTube / Minecraft)** ретінде ынтымақтастыққа дайынбыз.\n\n` +
-            `**Біз ұсынамыз:**\n` +
-            `✅ Бірлесіп дамыту және ілгерілету\n` +
-            `🎥 Сапалы контент жасауға көмек\n` +
-            `🚀 Серверді танымал ету мүмкіндігі\n` +
-            `📢 Платформаларда жарнама жасау\n\n` +
-            `Өтініш беру үшін төмендегі батырманы басыңыз.`
-        )
+        .setDescription(`Біз TikTok/YouTube авторларымен жұмыс істеуге дайынбыз. Өтініш беру үшін төмендегі батырманы басыңыз.`)
         .setImage(MEDIA_BANNER);
 
     const mediaRow = new ActionRowBuilder().addComponents(
@@ -150,14 +135,14 @@ client.on('messageCreate', async (message) => {
             { name: '👥 Ойыншылар', value: '`Жүктелуде...`', inline: true }
         )
         .setDescription(`**Java IP:** \`grief.play.ski\`\n**Bedrock IP:** \`213.152.43.25:25777\``)
-        .setImage(MAIN_BANNER);
+        .setImage(MONITORING_BANNER);
 
     statusMessage = await message.channel.send({ embeds: [serverEmbed] });
     await message.delete();
   }
 });
 
-// ИНТЕРАКЦИЯЛАР (Modal Submit)
+// ИНТЕРАКЦИЯЛАР
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
         if (interaction.customId === 'buy_shop') {
