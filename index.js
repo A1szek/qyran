@@ -119,7 +119,6 @@ client.on('messageCreate', async (message) => {
             `**5.2.** Қажетсіз үлкен территорияны басып алуға болмайды.\n` +
             `**5.3.** Серверге лаг тудыратын фермалар жойылуы мүмкін.`
         )
-        .setImage(RULES_BANNER)
         .setFooter({ text: 'QYRAN PROJECT • Тәртіпті сақтағаныңыз үшін рахмет!' });
     await message.channel.send({ embeds: [rulesEmbed] });
     await message.delete();
@@ -140,7 +139,7 @@ client.on('messageCreate', async (message) => {
     const mediaEmbed = new EmbedBuilder()
         .setColor('#3498db')
         .setTitle('🎬 Медиа серіктестік')
-        .setDescription(`Біз сіздермен медиа ойыншы (TikTok / YouTube / Minecraft / CS) ретінде ынтымақтастыққа дайынбыз.`)
+        .setDescription(`Біз сіздермен медиа ойыншы (TikTok / YouTube / Minecraft) ретінде ынтымақтастыққа дайынбыз.`)
         .setImage(MEDIA_BANNER);
 
     const mediaRow = new ActionRowBuilder().addComponents(
