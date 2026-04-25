@@ -26,6 +26,7 @@ const ADMIN_LOG_CHANNEL_ID = '1482733365160575128';
 const TICKET_CATEGORY_ID = '1482733463898427443'; 
 const SERVER_IP = 'grief.play.ski';
 const TELEGRAM_URL = 'https://t.me/qyranproject';
+const WEBSITE_URL = 'https://qyran.webhm.pro';
 
 // --- БАННЕРЛЕР ---
 const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
@@ -65,6 +66,7 @@ client.on('messageCreate', async (message) => {
             `📩 **• Поддержка:**\n` +
             `Төмендегі батырманы басып тикет ашыңыз.\n\n` +
             `ℹ️ **• Навигация:**\n` +
+            `• 🌍 **Сайт:** [https://www.qyran.ru/](${WEBSITE_URL})\n` +
             `• 📘 <#1482733569422921859> — ақпараттар\n` +
             `• 💸 <#1482752097723093232> — магазин\n` +
             `• ⚡ <#1482752143449653298> — медиа\n` +
@@ -77,6 +79,7 @@ client.on('messageCreate', async (message) => {
 
     const infoRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('open_ticket').setLabel('Открыть тикет').setEmoji('📩').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setLabel('Сайтқа өту').setEmoji('🌍').setURL(WEBSITE_URL).setStyle(ButtonStyle.Link),
         new ButtonBuilder().setLabel('Telegram').setEmoji('✈️').setURL(TELEGRAM_URL).setStyle(ButtonStyle.Link)
     );
 
@@ -124,7 +127,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 3. ДҮКЕН ЖӘНЕ МЕДИА (СИПАТТАМАСЫ СОЛ ҚАЛПЫНДА)
+  // 3. ДҮКЕН ЖӘНЕ МЕДИА
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -133,15 +136,16 @@ client.on('messageCreate', async (message) => {
             `**Тауарлар туралы толығырақ:**\n` +
             `Minecraft серверіне арналған донат жүйесі: привилегиялар, арнайы киттер және қосымша мүмкіндіктер.\n\n` +
             `**Жобаны қолдап, бірегей ойын мүмкіндіктерін алыңыз:**\n` +
-            `• Привилегиялар (VIP, MVP...)\n` +
+            `• Привилегиялар (VIP, IMRT...)\n` +
             `• Арнайы киттер мен ресурстар\n` +
             `• Қосымша командалар\n\n` +
-            `Сатып алу үшін төмендегі батырманы басыңыз.`
+            `Сатып алу үшін төмендегі батырманы басыңыз немесе сайтқа өтіңіз.`
         )
         .setImage(SHOP_BANNER);
 
     const shopRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('buy_shop').setLabel('Сатып алу').setStyle(ButtonStyle.Success).setEmoji('💰')
+        new ButtonBuilder().setLabel('Сайт арқылы сатып алу').setStyle(ButtonStyle.Link).setURL(WEBSITE_URL).setEmoji('🌍'),
+        new ButtonBuilder().setCustomId('buy_shop').setLabel('Өтініш қалдыру').setStyle(ButtonStyle.Success).setEmoji('💰')
     );
 
     const mediaEmbed = new EmbedBuilder()
@@ -187,7 +191,6 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
         
-        // ТИКЕТТІ КАТЕГОРИЯ ІШІНДЕ АШУ
         if (interaction.customId === 'open_ticket') {
             const ticketChannel = await interaction.guild.channels.create({
                 name: `ticket-${interaction.user.username}`,
@@ -219,7 +222,6 @@ client.on('interactionCreate', async (interaction) => {
             return;
         }
 
-        // МОДАЛДАР (SHOP & MEDIA)
         if (interaction.customId === 'buy_shop' || interaction.customId === 'apply_media') {
             const isShop = interaction.customId === 'buy_shop';
             const modal = new ModalBuilder()
