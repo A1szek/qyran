@@ -136,7 +136,7 @@ client.on('messageCreate', async (message) => {
             `**Тауарлар туралы толығырақ:**\n` +
             `Minecraft серверіне арналған донат жүйесі: привилегиялар, арнайы киттер және қосымша мүмкіндіктер.\n\n` +
             `**Жобаны қолдап, бірегей ойын мүмкіндіктерін алыңыз:**\n` +
-            `• Привилегиялар (VIP, MVP...)\n` +
+            `• Привилегиялар (VIP, IMRT...)\n` +
             `• Арнайы киттер мен ресурстар\n` +
             `• Қосымша командалар\n\n` +
             `Сатып алу үшін төмендегі батырманы басыңыз немесе сайтқа өтіңіз.`
@@ -181,7 +181,7 @@ client.on('messageCreate', async (message) => {
             { name: '🗺️ Карта', value: '`Grief`', inline: true },
             { name: '👥 Ойыншылар', value: '`Жүктелуде...`', inline: true }
         )
-        .setDescription(`**Java IP:** \`grief.play.ski\`\n**Bedrock IP:** \`213.152.43.25:25777\``)
+        .setDescription(`**Java IP:** \`qyran.ru\`\n**Bedrock IP:** \`\``)
         .setImage(MONITORING_BANNER);
     statusMessage = await message.channel.send({ embeds: [serverEmbed] });
     await message.delete();
