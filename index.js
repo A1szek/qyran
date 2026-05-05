@@ -28,6 +28,15 @@ const SERVER_IP = 'qyran.ru';
 const TELEGRAM_URL = 'https://t.me/qrunproject';
 const WEBSITE_URL = 'https://www.qyran.ru';
 
+// --- НАСТРОЙКА РОЛЕЙ ДЛЯ ТИКЕТОВ ---
+// Впиши сюда ID ролей, которые должны видеть тикеты
+const STAFF_ROLES = [
+    '1482733365160575128', 
+    '1495446676901728548',
+    '1479769459748241520',
+    '1482731347863670824'
+];
+
 // --- БАННЕРЛЕР ---
 const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
 const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
@@ -57,7 +66,6 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // 1. ИНФОРМАЦИОННЫЙ ЦЕНТР
   if (message.content === '!setup-info') {
     const infoEmbed = new EmbedBuilder()
         .setColor('#3498db')
@@ -87,7 +95,6 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 2. ЕРЕЖЕЛЕР
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -99,7 +106,7 @@ client.on('messageCreate', async (message) => {
             `1.3 Әкімшілік ойыншыны ережеде көрсетілмеген себеп бойынша да жазалай алады;\n` +
             `1.4 Әкімшілік серверде ойнай алмау (уақытша немесе тұрақты) үшін жауап бермейді;\n` +
             `1.5 Сервер немесе плагиндердің жұмысындағы ақаулар салдарынан жоғалған ойын ресурстарына әкімшілік жауап бермейді;\n` +
-            `1.6 Әкімшілік сервердің тұрақты жұмысын, ақпараттың сақталуын және жобаның жалғасуын кепілдендірмейді;\n` +
+            `1.6 Әкімшілік сервердің тұрақты жұмысын, ақпараттың сақталуын ие жобаның жалғасуын кепілдендірмейді;\n` +
             `1.7 Әкімшілік қызметтер мен сервистердің тұрақты жұмыс істеуіне кепілдік бермейді және байланыс ақаулары, бағдарламалық қателер немесе қызметті дұрыс пайдаланбау салдарынан келген зиян үшін жауап бермейді;\n` +
             `1.8 Ойыншылар барлық ережелерді сақтауға міндетті;\n` +
             `1.9 Әкімшілік барлық әрекеттер мен чат хабарламаларын логқа сақтайды;\n` +
@@ -109,7 +116,7 @@ client.on('messageCreate', async (message) => {
             `2.1 КАПС / спам / флуд — тыйым салынады\n→ Жаза: мут 10–30 минут (қайталанса 2 сағатқа дейін)\n` +
             `2.2 Ойыншыларды қорлау, кемсіту — тыйым салынады\n→ Жаза: мут 30 минут – 2 сағат (қайталанса 1 күн бан)\n` +
             `2.3 Балағат сөздер (жасырын түрде де) — тыйым салынады\n→ Жаза: мут 20–60 минут (қайталанса 3 сағатқа дейін)\n` +
-            `2.4 Бөгде ресурстарды жарнамалау — тыйым салынады\n→ Жаза: мут 3–6 сағат немесе 1 күн бан\n` +
+            `2.4 Бөгде ресурсовтарды жарнамалау — тыйым салынады\n→ Жаза: мут 3–6 сағат немесе 1 күн бан\n` +
             `2.5 Сауда чаттарын тек өз мақсатында пайдалану керек\n→ Жаза: мут 15–30 минут\n` +
             `2.6 Ойыншылардың туыстарын қорлау — тыйым салынады\n→ Жаза: 1–3 күн бан\n` +
             `2.7 Ұлтаралық араздық, нәсілшілдік — тыйым салынады\n→ Жаза: 3–7 күн бан (ауыр жағдайда PERM BAN)\n` +
@@ -154,7 +161,6 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 3. ДҮКЕН ЖӘНЕ МЕДИА
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -198,7 +204,6 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // 4. МОНИТОРИНГ
   if (message.content === '!setup-server') {
     const serverEmbed = new EmbedBuilder()
         .setColor('#2ecc71')
@@ -218,14 +223,23 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
         if (interaction.customId === 'open_ticket') {
+            const permissions = [
+                { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
+            ];
+
+            STAFF_ROLES.forEach(roleId => {
+                permissions.push({
+                    id: roleId,
+                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
+                });
+            });
+
             const ticketChannel = await interaction.guild.channels.create({
                 name: `ticket-${interaction.user.username}`,
                 type: ChannelType.GuildText,
                 parent: TICKET_CATEGORY_ID,
-                permissionOverwrites: [
-                    { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
-                    { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
-                ],
+                permissionOverwrites: permissions,
             });
 
             const welcome = new EmbedBuilder()
