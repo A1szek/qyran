@@ -25,7 +25,7 @@ const client = new Client({
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
 const TICKET_CATEGORY_ID = '1482733463898427443'; 
 const SERVER_IP = 'qyran.ru';
-const TELEGRAM_URL = 'https://t.me/qyranproject';
+const TELEGRAM_URL = 'https://t.me/qrunproject';
 const WEBSITE_URL = 'https://www.qyran.ru';
 
 // --- БАННЕРЛЕР ---
