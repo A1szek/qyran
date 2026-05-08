@@ -4,13 +4,6 @@ const {
     ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType 
 } = require('discord.js');
 const util = require('minecraft-server-util'); 
-
-const { 
-    Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, 
-    ButtonStyle, ChannelType, PermissionsBitField, EmbedBuilder,
-    ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType 
-} = require('discord.js');
-const util = require('minecraft-server-util'); 
 const express = require('express'); 
 require('dotenv').config();
 
@@ -18,7 +11,7 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('QYRAN PROJECT Bot is Alive!'));
-app.listen(port, () => console.log(`Web-сервер запущен на порту ${port}`));
+app.listen(port, '0.0.0.0', () => console.log(`Web-сервер запущен на порту ${port}`));
 
 const client = new Client({
   intents: [
@@ -150,7 +143,7 @@ client.on('messageCreate', async (message) => {
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
-        .setTitle('📜 Discorrd ережелері — QYRAN PROJECT')
+        .setTitle('📜 Discord ережелері — QYRAN PROJECT')
         .setDescription(
             `Правила и условия распространяются на все текстовые каналы и голосовые каналы проекта, в том числе аватар профиля, описание профиля, никнейм, роли Discord сообщества QYRAN PROJECT.\n\n` +
             `ℹ️ **1.1** Қатысушыға, оның туыстарына немесе жақындарына тіл тигізу, балағаттау.\n🚫 Тайм-аут: 1 сағ > 3 сағ > 6 сағ > 12 сағ.\n\n` +
