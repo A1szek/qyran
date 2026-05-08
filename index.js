@@ -5,11 +5,6 @@ const {
 } = require('discord.js');
 const util = require('minecraft-server-util'); 
 
-message.txt
-18 кб
-﻿
-A1bar
-a1bar0769
 const { 
     Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, 
     ButtonStyle, ChannelType, PermissionsBitField, EmbedBuilder,
