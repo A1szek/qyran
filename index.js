@@ -168,7 +168,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // --- КОМАНДА !setup-all (SHOP & MEDIA) ---
+  // --- КОМАНДА !setup-all ---
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -232,12 +232,12 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     // --- ОБРАБОТКА КНОПОК ---
     if (interaction.isButton()) {
+        
+        // --- 1. Открытие тикета ---
         if (interaction.customId === 'open_ticket') {
             await interaction.deferReply({ ephemeral: true });
-
             try {
                 const category = interaction.guild.channels.cache.get(TICKET_CATEGORY_ID);
-                
                 const permissions = [
                     { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
@@ -270,20 +270,22 @@ client.on('interactionCreate', async (interaction) => {
                 );
 
                 await ticketChannel.send({ embeds: [welcome], components: [closeBtn] });
-                return interaction.editReply({ content: `✅ Тикет ашылды: ${ticketChannel}` });
+                return await interaction.editReply({ content: `✅ Тикет ашылды: ${ticketChannel}` });
 
             } catch (err) {
                 console.error(err);
-                return interaction.editReply({ content: '❌ Тикет ашу кезінде қате кетті.' });
+                return await interaction.editReply({ content: '❌ Ошибка при создании тикета.' });
             }
         }
 
+        // --- 2. Закрытие тикета (ИСПРАВЛЕНО: удален лишний deferReply/reply) ---
         if (interaction.customId === 'close_ticket') {
-            await interaction.reply('Канал 5 секундтан кейін жойылады...');
+            await interaction.reply({ content: 'Канал 5 секундтан кейін жойылады...', ephemeral: false });
             setTimeout(() => interaction.channel.delete().catch(() => {}), 5000);
             return;
         }
 
+        // --- 3. Модальные окна для магазина и медиа ---
         if (interaction.customId === 'buy_shop' || interaction.customId === 'apply_media') {
             const isShop = interaction.customId === 'buy_shop';
             const modal = new ModalBuilder()
