@@ -67,7 +67,7 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // --- КОМАНДА !сервер (ПОЛНОЕ СООТВЕТСТВИЕ СКРИНШОТУ) ---
+  // --- КОМАНДА !сервер ---
   if (message.content === '!сервер') {
     const guild = message.guild;
     const totalMembers = guild.memberCount;
@@ -110,6 +110,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
+  // --- КОМАНДА !setup-info ---
   if (message.content === '!setup-info') {
     const infoEmbed = new EmbedBuilder()
         .setColor('#3498db')
@@ -139,7 +140,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
-  // --- КАЗАХСКИЕ ПРАВИЛА (ПО СКРИНШОТУ) ---
+  // --- КОМАНДА !setup-rules ---
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -162,13 +163,12 @@ client.on('messageCreate', async (message) => {
             `**Незнание правил не освобождает от ответственности. • 08.05.2026**`
         )
         .setFooter({ text: 'Ережені білмеу жауапкершіліктен босатпайды. • 08.05.2026' });
-    
-    rulesEmbed.setDescription(message.content === '!setup-rules' ? rulesEmbed.data.description : ''); 
 
     await message.channel.send({ embeds: [rulesEmbed] });
     await message.delete();
   }
 
+  // --- КОМАНДА !setup-all (SHOP & MEDIA) ---
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -212,6 +212,7 @@ client.on('messageCreate', async (message) => {
     await message.delete();
   }
 
+  // --- КОМАНДА !setup-server ---
   if (message.content === '!setup-server') {
     const serverEmbed = new EmbedBuilder()
         .setColor('#2ecc71')
@@ -229,17 +230,21 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
+    // --- ОБРАБОТКА КНОПОК ---
     if (interaction.isButton()) {
         if (interaction.customId === 'open_ticket') {
+            await interaction.deferReply({ ephemeral: true });
+
             try {
+                const category = interaction.guild.channels.cache.get(TICKET_CATEGORY_ID);
+                
                 const permissions = [
                     { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
                 ];
 
                 STAFF_ROLES.forEach(roleId => {
-                    const roleExists = interaction.guild.roles.cache.has(roleId);
-                    if (roleExists) {
+                    if (interaction.guild.roles.cache.has(roleId)) {
                         permissions.push({
                             id: roleId,
                             allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
@@ -250,7 +255,7 @@ client.on('interactionCreate', async (interaction) => {
                 const ticketChannel = await interaction.guild.channels.create({
                     name: `ticket-${interaction.user.username}`,
                     type: ChannelType.GuildText,
-                    parent: TICKET_CATEGORY_ID,
+                    parent: category ? TICKET_CATEGORY_ID : null,
                     permissionOverwrites: permissions,
                 });
 
@@ -265,10 +270,11 @@ client.on('interactionCreate', async (interaction) => {
                 );
 
                 await ticketChannel.send({ embeds: [welcome], components: [closeBtn] });
-                return interaction.reply({ content: `✅ Тикет ашылды: ${ticketChannel}`, ephemeral: true });
+                return interaction.editReply({ content: `✅ Тикет ашылды: ${ticketChannel}` });
+
             } catch (err) {
                 console.error(err);
-                return interaction.reply({ content: '❌ Ошибка при создании тикета.', ephemeral: true });
+                return interaction.editReply({ content: '❌ Тикет ашу кезінде қате кетті.' });
             }
         }
 
@@ -295,6 +301,7 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
 
+    // --- ОБРАБОТКА МОДАЛОК ---
     if (interaction.type === InteractionType.ModalSubmit) {
         const val = interaction.fields.getTextInputValue('user_input');
         const isShop = interaction.customId === 'shop_modal';
