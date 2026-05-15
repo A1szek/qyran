@@ -7,7 +7,7 @@ const util = require('minecraft-server-util');
 const express = require('express'); 
 require('dotenv').config();
 
-// --- ВЕБ-СЕРВЕР ---
+// --- ВЕБ-СЕРВЕР ДЛЯ ХОСТИНГА ---
 const app = express();
 const port = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('QYRAN PROJECT Bot is Alive!'));
@@ -23,7 +23,7 @@ const client = new Client({
   ],
 });
 
-// --- БОТ ПАРАМЕТРЛЕРІ ---
+// --- КОНФИГУРАЦИЯ ---
 const ADMIN_LOG_CHANNEL_ID = '1482733365160575128'; 
 const TICKET_CATEGORY_ID = '1482733463898427443'; 
 const SERVER_IP = 'qyran.ru';
@@ -37,16 +37,17 @@ const STAFF_ROLES = [
     '1482731347863670824'
 ];
 
-// --- БАННЕРЛЕР ---
-const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&=&format=webp&quality=lossless&width=1814&height=1092';
-const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&=&format=webp&quality=lossless&width=1956&height=1092'; 
-const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&=&format=webp&quality=lossless&width=2572&height=1092';
-const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&=&format=webp&quality=lossless&width=2784&height=1050';
+// --- БАННЕРЫ ---
+const MONITORING_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495440193396674822/qyranbanner_.png?ex=69e6e976&is=69e597f6&hm=15ead6e70822447153dbc87368fcce6b7c1eb37d846ab77808e2ec2f550ad607&';
+const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&'; 
+const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&';
+const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&';
 
 let statusMessage = null;
 
-client.once('ready', () => {
-  console.log(`✅ QYRAN PROJECT іске қосылды!`);
+client.once('ready', (c) => {
+  console.log(`✅ QYRAN PROJECT іске қосылды! Аккаунт: ${c.user.tag}`);
+  
   setInterval(async () => {
     if (statusMessage) {
         try {
@@ -75,9 +76,10 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-  if (message.author.bot || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
+  if (message.author.bot || !message.guild) return;
+  if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
-  // --- КОМАНДА !setup-info ---
+  // --- ИНФО ЦЕНТР ---
   if (message.content === '!setup-info') {
     const infoEmbed = new EmbedBuilder()
         .setColor('#3498db')
@@ -107,7 +109,7 @@ client.on('messageCreate', async (message) => {
     await message.delete().catch(() => {});
   }
 
-  // --- КОМАНДА !setup-rules ---
+  // --- ПРАВИЛА (ПОЛНЫЙ ТЕКСТ) ---
   if (message.content === '!setup-rules') {
     const rulesEmbed = new EmbedBuilder()
         .setColor('#FF0000')
@@ -135,7 +137,7 @@ client.on('messageCreate', async (message) => {
     await message.delete().catch(() => {});
   }
 
-  // --- КОМАНДА !setup-all ---
+  // --- МАГАЗИН И МЕДИА ---
   if (message.content === '!setup-all') {
     const shopEmbed = new EmbedBuilder()
         .setColor('#f1c40f')
@@ -179,7 +181,7 @@ client.on('messageCreate', async (message) => {
     await message.delete().catch(() => {});
   }
 
-  // --- КОМАНДА !setup-server ---
+  // --- МОНИТОРИНГ ---
   if (message.content === '!setup-server') {
     const serverEmbed = new EmbedBuilder()
         .setColor('#2ecc71')
@@ -189,7 +191,7 @@ client.on('messageCreate', async (message) => {
             { name: '🗺️ Карта', value: '`Grief`', inline: true },
             { name: '👥 Ойыншылар', value: '`Жүктелуде...`', inline: true }
         )
-        .setDescription(`**Java IP:** \`qyran.ru\`\n**Bedrock IP:** \`\``)
+        .setDescription(`**Java IP:** \`qyran.ru\`\n**Bedrock IP:** \`скоро\``)
         .setImage(MONITORING_BANNER);
     statusMessage = await message.channel.send({ embeds: [serverEmbed] });
     await message.delete().catch(() => {});
@@ -206,30 +208,25 @@ client.on('interactionCreate', async (interaction) => {
                     { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
                 ];
-
                 STAFF_ROLES.forEach(roleId => {
                     if (interaction.guild.roles.cache.has(roleId)) {
                         permissions.push({ id: roleId, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] });
                     }
                 });
-
                 const ticketChannel = await interaction.guild.channels.create({
                     name: `ticket-${interaction.user.username}`,
                     type: ChannelType.GuildText,
                     parent: category ? TICKET_CATEGORY_ID : null,
                     permissionOverwrites: permissions,
                 });
-
                 const welcomeEmbed = new EmbedBuilder()
                     .setColor('#3498db')
                     .setTitle('📩 Поддержка')
                     .setDescription(`Сәлем ${interaction.user}! Мәселеңізді жазыңыз, әкімшілік жауап береді.`)
                     .setTimestamp();
-
                 const closeBtn = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('close_ticket').setLabel('Закрыть тикет').setStyle(ButtonStyle.Danger).setEmoji('🔒')
                 );
-
                 await ticketChannel.send({ embeds: [welcomeEmbed], components: [closeBtn] });
                 return await interaction.editReply({ content: `✅ Тикет ашылды: ${ticketChannel}` });
             }
@@ -245,13 +242,11 @@ client.on('interactionCreate', async (interaction) => {
                 const modal = new ModalBuilder()
                     .setCustomId(isShop ? 'shop_modal' : 'media_modal')
                     .setTitle(isShop ? 'Сатып алу' : 'Медиаға өтініш');
-                
                 const input = new TextInputBuilder()
                     .setCustomId('user_input')
                     .setLabel(isShop ? "Не сатып алғыңыз келеді?" : "Әлеуметтік желі (TikTok/YouTube)")
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true);
-
                 modal.addComponents(new ActionRowBuilder().addComponents(input));
                 await interaction.showModal(modal);
             }
@@ -267,7 +262,6 @@ client.on('interactionCreate', async (interaction) => {
                     { name: 'Пайдаланушы:', value: `${interaction.user.tag}` },
                     { name: 'Мәлімет:', value: val }
                 ).setTimestamp();
-            
             const logChannel = client.channels.cache.get(ADMIN_LOG_CHANNEL_ID);
             if (logChannel) await logChannel.send({ embeds: [logEmbed] });
             await interaction.reply({ content: '✅ Өтінішіңіз сәтті жіберілді!', flags: 64 });
