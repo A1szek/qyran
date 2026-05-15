@@ -29,6 +29,7 @@ const TICKET_CATEGORY_ID = '1482733463898427443';
 const SERVER_IP = 'qyran.ru';
 const TELEGRAM_URL = 'https://t.me/qrunproject';
 const WEBSITE_URL = 'https://www.qyran.ru';
+const HELPER_ROLE_ID = '1495446676901728548'; // ID роли, которая выдается при принятии
 
 const STAFF_ROLES = [
     '1482733365160575128', 
@@ -42,6 +43,7 @@ const MONITORING_BANNER = 'https://media.discordapp.net/attachments/148273336516
 const SHOP_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495649008058896584/magazin.png?ex=69e7032f&is=69e5b1af&hm=1e5814b07e6a4e62a3912c8d12d647bd3626767ea4bc8a1dc7ef1e07800d4f1c&'; 
 const MEDIA_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495645413909463160/mediaplayer.png?ex=69e6ffd6&is=69e5ae56&hm=e80a1fc1c09e9fbb54d126710a0fc7505ec3c0b1a6c7e6ef729010f6eb357268&';
 const INFO_CENTER_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png?ex=69e663f5&is=69e51275&hm=3c1a9025193b82e7c44cbf7d67a7f818784c3fc6e224f2854713ac68995ef4a9&';
+const STAFF_APPLY_BANNER = 'https://media.discordapp.net/attachments/1482733365160575128/1495478041265045798/content.png'; // Можно заменить на свой баннер персонала
 
 let statusMessage = null;
 
@@ -196,11 +198,35 @@ client.on('messageCreate', async (message) => {
     statusMessage = await message.channel.send({ embeds: [serverEmbed] });
     await message.delete().catch(() => {});
   }
+
+  // --- ПЕРСОНАЛ: НАСТРОЙКА КНОПКИ ПОДАЧИ ---
+  if (message.content === '!setup-apply') {
+    const applyEmbed = new EmbedBuilder()
+        .setColor('#5865F2')
+        .setTitle('💼 Персонал жинағы — QYRAN PROJECT')
+        .setDescription(
+            `Біздің командаға қосылғыңыз келе ме? Біз белсенді және жауапкершілігі мол адамдарды іздейміз!\n\n` +
+            `**Қажетті талаптар:**\n` +
+            `• Жасыңыз 16+ \n` +
+            `• Сервер ережелерін жақсы білу\n` +
+            `• Адекваттылық және сабырлық\n\n` +
+            `Өтініш беру үшін төмендегі батырманы басыңыз.`
+        )
+        .setImage(STAFF_APPLY_BANNER);
+
+    const applyRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('open_staff_modal').setLabel('Өтініш қалдыру').setStyle(ButtonStyle.Primary).setEmoji('📝')
+    );
+
+    await message.channel.send({ embeds: [applyEmbed], components: [applyRow] });
+    await message.delete().catch(() => {});
+  }
 });
 
 client.on('interactionCreate', async (interaction) => {
     try {
         if (interaction.isButton()) {
+            // ТВОИ СТАРЫЕ ИНТЕРАКЦИИ (ТИКЕТЫ И Т.Д.)
             if (interaction.customId === 'open_ticket') {
                 await interaction.deferReply({ flags: 64 });
                 const category = interaction.guild.channels.cache.get(TICKET_CATEGORY_ID);
@@ -250,21 +276,89 @@ client.on('interactionCreate', async (interaction) => {
                 modal.addComponents(new ActionRowBuilder().addComponents(input));
                 await interaction.showModal(modal);
             }
+
+            // НОВАЯ ЧАСТЬ: ОТКРЫТИЕ МОДАЛКИ ПЕРСОНАЛА
+            if (interaction.customId === 'open_staff_modal') {
+                const modal = new ModalBuilder().setCustomId('staff_modal').setTitle('Персоналға өтініш');
+                
+                const nickInput = new TextInputBuilder().setCustomId('staff_nick').setLabel("Никнейміңіз (Minecraft):").setStyle(TextInputStyle.Short).setRequired(true);
+                const ageInput = new TextInputBuilder().setCustomId('staff_age').setLabel("Жасыңыз:").setStyle(TextInputStyle.Short).setRequired(true);
+                const infoInput = new TextInputBuilder().setCustomId('staff_info').setLabel("Өзіңіз және тәжірибеңіз туралы:").setStyle(TextInputStyle.Paragraph).setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(nickInput),
+                    new ActionRowBuilder().addComponents(ageInput),
+                    new ActionRowBuilder().addComponents(infoInput)
+                );
+                await interaction.showModal(modal);
+            }
+
+            // ПРИНЯТИЕ/ОТКЛОНЕНИЕ ЗАЯВКИ
+            if (interaction.customId.startsWith('staff_accept_') || interaction.customId.startsWith('staff_reject_')) {
+                const [action, , userId] = interaction.customId.split('_');
+                const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                
+                if (!member) return interaction.reply({ content: 'Пайдаланушы серверден шығып кетті.', ephemeral: true });
+
+                const oldEmbed = interaction.message.embeds[0];
+                const newEmbed = EmbedBuilder.from(oldEmbed);
+
+                if (action === 'accept') {
+                    await member.roles.add(HELPER_ROLE_ID).catch(() => {});
+                    await member.send(`🎉 Құттықтаймыз! Сіздің өтінішіңіз **${interaction.guild.name}** серверінде қабылданды!`).catch(() => {});
+                    newEmbed.setColor('#2ecc71').setTitle('✅ ӨТІНІШ ҚАБЫЛДАНДЫ');
+                } else {
+                    await member.send(`😔 Кешіріңіз, сіздің өтінішіңіз **${interaction.guild.name}** серверінде қабылданбады.`).catch(() => {});
+                    newEmbed.setColor('#e74c3c').setTitle('❌ ӨТІНІШ ҚАБЫЛДАНБАДЫ');
+                }
+
+                await interaction.update({ embeds: [newEmbed], components: [] });
+            }
         }
 
+        // ОБРАБОТКА ВСЕХ МОДАЛОК
         if (interaction.type === InteractionType.ModalSubmit) {
-            const val = interaction.fields.getTextInputValue('user_input');
-            const isShop = interaction.customId === 'shop_modal';
-            const logEmbed = new EmbedBuilder()
-                .setColor(isShop ? '#f1c40f' : '#3498db')
-                .setTitle(isShop ? '💰 ЖАҢА САТЫП АЛУ ӨТІНІШІ' : '🎥 ЖАҢА МЕДИА ӨТІНІШ')
-                .addFields(
-                    { name: 'Пайдаланушы:', value: `${interaction.user.tag}` },
-                    { name: 'Мәлімет:', value: val }
-                ).setTimestamp();
-            const logChannel = client.channels.cache.get(ADMIN_LOG_CHANNEL_ID);
-            if (logChannel) await logChannel.send({ embeds: [logEmbed] });
-            await interaction.reply({ content: '✅ Өтінішіңіз сәтті жіберілді!', flags: 64 });
+            // ТВОИ СТАРЫЕ МОДАЛКИ (МАГАЗИН И МЕДИА)
+            if (interaction.customId === 'shop_modal' || interaction.customId === 'media_modal') {
+                const val = interaction.fields.getTextInputValue('user_input');
+                const isShop = interaction.customId === 'shop_modal';
+                const logEmbed = new EmbedBuilder()
+                    .setColor(isShop ? '#f1c40f' : '#3498db')
+                    .setTitle(isShop ? '💰 ЖАҢА САТЫП АЛУ ӨТІНІШІ' : '🎥 ЖАҢА МЕДИА ӨТІНІШ')
+                    .addFields(
+                        { name: 'Пайдаланушы:', value: `${interaction.user.tag}` },
+                        { name: 'Мәлімет:', value: val }
+                    ).setTimestamp();
+                const logChannel = client.channels.cache.get(ADMIN_LOG_CHANNEL_ID);
+                if (logChannel) await logChannel.send({ embeds: [logEmbed] });
+                await interaction.reply({ content: '✅ Өтінішіңіз сәтті жіберілді!', flags: 64 });
+            }
+
+            // НОВАЯ МОДАЛКА: ЗАЯВКА В ПЕРСОНАЛ
+            if (interaction.customId === 'staff_modal') {
+                const nick = interaction.fields.getTextInputValue('staff_nick');
+                const age = interaction.fields.getTextInputValue('staff_age');
+                const info = interaction.fields.getTextInputValue('staff_info');
+
+                const logEmbed = new EmbedBuilder()
+                    .setColor('#5865F2')
+                    .setTitle('💼 ЖАҢА ПЕРСОНАЛ ӨТІНІШІ')
+                    .addFields(
+                        { name: 'Дискорд:', value: `${interaction.user.tag} (${interaction.user.id})` },
+                        { name: 'Никнейм:', value: nick, inline: true },
+                        { name: 'Жасы:', value: age, inline: true },
+                        { name: 'Ақпарат:', value: info }
+                    ).setTimestamp();
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`staff_accept_${interaction.user.id}`).setLabel('Принять').setStyle(ButtonStyle.Success),
+                    new ButtonBuilder().setCustomId(`staff_reject_${interaction.user.id}`).setLabel('Отклонить').setStyle(ButtonStyle.Danger)
+                );
+
+                const logChannel = client.channels.cache.get(ADMIN_LOG_CHANNEL_ID);
+                if (logChannel) await logChannel.send({ embeds: [logEmbed], components: [row] });
+                await interaction.reply({ content: '✅ Сіздің өтінішіңіз персоналға жіберілді!', flags: 64 });
+            }
         }
     } catch (err) {
         console.error('Interaction Error:', err);
